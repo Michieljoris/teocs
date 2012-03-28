@@ -15,8 +15,8 @@
   (format t "~a~%" (compare-and-iterate  (get-terminal t) (get-token)))
   (format t "~&Finished -----------------------------------------~%"))
 
-(build-ast "c:/home/mysrc/lisp/eocs/test.jack"
-	     "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt")
+;; (build-ast "c:/home/mysrc/lisp/eocs/test.jack"
+;; 	     "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt")
 (defun compare-and-iterate (terminal token)
   (format t "comparing: terminal [~a] and token [~a]~%" terminal (car token))
   (cond
@@ -62,19 +62,27 @@
   )
 
 (defun match (terminal token)
-  (if (symbolp terminal)
-      (cond ((equal (symbol-name terminal) "stringConstant")
-	     (print "michiel")
-	     (print (symbol-package terminal)))))
   (format t "matching [~a] with [~a]~%"  terminal (car token))
   (if (stringp terminal) (progn
 			   (format t "string compare result: ~a~%"
 				   (equal terminal (car token)))
 			   (if (equal terminal (car token))
 			       token))
-    (handler-case (funcall terminal token)
-		  (undefined-function
-		   () (format t "Error: undefined construct ~a~%" terminal)))))  
+      
+      ;; (if (symbolp terminal)
+      
+      (let ((sym-name (symbol-name terminal)))
+	    (cond
+	      ((equal sym-name "stringConstant")
+	       (stringConstant token))
+	      ((equal sym-name "identifier")
+	       (identifier token))
+	      ((equal sym-name "integerConstant")
+	       (integerConstant token))
+	      (t (error "Don't know this terminal: ~a~%" terminal))))))
+;; (handler-case (funcall terminal token)
+;; 		  (undefined-function
+;; 		   () (format t "Error: undefined construct ~a~%" terminal)))))  
 
 
 (defun init-terminal-generator ()
@@ -171,22 +179,22 @@
     (format t "~a~a" (caddr  i) (car i))))
 
 
-;; (defun identifier (token)
-  ;; (format t "Comparing [~a] with [~a]~%" (cdr token) "alpha_")
-  ;; (if (equal (cdr token) "alpha_")
-  ;;     (format t "Validated by custom function..~%")
-  ;;     (format t "Not validated by custom function!!!~%")
-  ;;   )
-  ;; (print (type-of token))
-  ;; (print (type-of "alpha_"))
-;;  (format t "type of token is :~a~%" (cadr token))
- ;; (if  (equal (cadr token) "alpha_")  token))
+(defun identifier (token)
+ ;;  (format t "Comparing [~a] with [~a]~%" (cdr token) "alpha_")
+ ;;  (if (equal (cdr token) "alpha_")
+ ;;      (format t "Validated by custom function..~%")
+ ;;      (format t "Not validated by custom function!!!~%")
+ ;;    )
+ ;;  (print (type-of token))
+ ;;  (print (type-of "alpha_"))
+ ;; (format t "type of token is :~a~%" (cadr token))
+ (if  (equal (cadr token) "alpha_")  token))
 
-;; (defun integerConstant (token)
-;;   (if  (equal (cadr token) "number") token))
+(defun integerConstant (token)
+  (if  (equal (cadr token) "number") token))
 
-;; (defun stringConstant (token)
-;;   (if  (equal (cadr token) "string") token))
+(defun stringConstant (token)
+  (if  (equal (cadr token) "string") token))
 ;----------------------------------------------------
 
 
