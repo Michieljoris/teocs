@@ -4,7 +4,7 @@
 (setf (readtable-case *readtable*) :invert)
 (defparameter stack nil)
 (defparameter *matched-tokens* (list nil))
-(defparameter *current-token* *matched-tokens*)
+v(defparameter *current-token* *matched-tokens*)
 (defparameter *mark-stack* (list nil))
 
 (defun build-ast (jack-filename language-definition-filename)
@@ -15,10 +15,10 @@
   (format t "~a~%" (compare-and-iterate  (get-terminal t) (get-token)))
   (format t "~&Finished -----------------------------------------~%"))
 
-(build-ast "c:/home/mysrc/lisp/eocs/test.jack"
+(build-ast "c:/home/mysrc/lisp/eocs/11/Pong/Ball.jack"
 	     "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt")
 (defun compare-and-iterate (terminal token)
-  (format t "comparing: terminal [~a] and token [~a]~%" terminal (car token))
+  ;; (format t "comparing: terminal [~a] and token [~a]~%" terminal (car token))
   (cond
     ((and terminal (not token)) "ERROR: Unexpected EOF")
     ((and (not terminal) token) "ERROR: EOF expected")
@@ -28,7 +28,7 @@
 
 (defun get-terminal (last-match)
   (if (null stack) 
-      (format t "Stack is empty. No valid parse found...")
+      (format t "Stack is emptky. No valid parse found...")
       (cond
 	(last-match
 	 (cond ((listp last-match) ;gather up tokens that matched
@@ -45,10 +45,11 @@
 	    (expand-node)
 	    (let ((terminal (pop (car stack))))
 	      (pop (car stack))
-	      (format t "next terminal = ~a~%" terminal)
+	      ;; (format t "next terminal = ~a~%" terminal)
 	      terminal))))
 	 (t
-	  (format t "Discarding path: ~%~a~%" (pop stack))
+	  ;; (format t "Discarding path: ~%" ))
+	  (pop stack)
 	  (cut-branches)
 	  (go-back-to-last-set-marks)
 	  (get-terminal t)))))
@@ -62,10 +63,10 @@
   )
 
 (defun match (terminal token)
-  (format t "matching [~a] with [~a]~%"  terminal (car token))
+  ;; (format t "matching [~a] with [~a]~%"  terminal (car token))
   (if (stringp terminal) (progn
-			   (format t "string compare result: ~a~%"
-				   (equal terminal (car token)))
+			   ;; (format t "string compare result: ~a~%"
+				   ;; (equal terminal (car token)))
 			   (if (equal terminal (car token))
 			       token))
       
@@ -109,7 +110,7 @@
 
 (defun expand-node ()
   (unpack-top-node)
-  (format t ">>>foctored out the regex ? and + and * of the first elt:~%")
+  ;; (format t ">>>foctored out the regex ? and + and * of the first elt:~%")
   (print-stack-top)
   (let ((node (caar stack)))
     (cond
@@ -121,13 +122,13 @@
 	    (push '@ (car stack)) ;mark it as a node
 	    ;(cond ((car stack) (push nil stack) (set-marks)))
 	    (grow-branches (cdr node) (cddr top))
-	    (format t ">>>Grew branches:~%")
+	    ;; (format t ">>>Grew branches:~%")
 	    (print-stack)
 	    (expand-node)))
 	 (t
 	  (let ((prod (pop stack)))
 	    (push (concatenate 'list (car prod) (cddr prod)) stack)
-	    (format t ">>>Unwrapped list [~a]:~%" (car prod))
+	    ;; (format t ">>>Unwrapped list [~a]:~%" (car prod))
 	    (print-stack-top)
 	    (expand-node))
 	  )))
@@ -136,7 +137,7 @@
 	 (if def
 	     (let ((prod (pop stack)))
 	       (push (concatenate 'list def (cddr prod)) stack)
-	       (format t ">>>Expanded prodname [~a]:~%" (car prod))
+	       ;; (format t ">>>Expanded prodname [~a]:~%" (car prod))
 	       (print-stack-top)
 	       (expand-node))))))))
 
@@ -218,8 +219,8 @@
 		      (p (cddr production))))))
 	(p (elt stack i))
 	(format t "~%")))))
-
-(defun print-stack-top ()
+(defun print-stack-top ())
+(defun print-stack-top1 ()
   (labels ((p (production)
 	     (cond
 	       ((null production) nil)
