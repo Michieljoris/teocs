@@ -15,8 +15,8 @@
   (format t "~a~%" (compare-and-iterate  (get-terminal t) (get-token)))
   (format t "~&Finished -----------------------------------------~%"))
 
-;; (build-ast "c:/home/mysrc/lisp/eocs/test.jack"
-;; 	     "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt")
+(build-ast "c:/home/mysrc/lisp/eocs/test.jack"
+	     "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt")
 (defun compare-and-iterate (terminal token)
   (format t "comparing: terminal [~a] and token [~a]~%" terminal (car token))
   (cond
@@ -73,11 +73,11 @@
       
       (let ((sym-name (symbol-name terminal)))
 	    (cond
-	      ((equal sym-name "stringConstant")
+	      ((string-equal sym-name "stringConstant")
 	       (stringConstant token))
-	      ((equal sym-name "identifier")
+	      ((string-equal sym-name "identifier")
 	       (identifier token))
-	      ((equal sym-name "integerConstant")
+	      ((string-equal sym-name "integerConstant")
 	       (integerConstant token))
 	      (t (error "Don't know this terminal: ~a~%" terminal))))))
 ;; (handler-case (funcall terminal token)
