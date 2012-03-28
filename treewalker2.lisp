@@ -4,8 +4,9 @@
 (setf (readtable-case *readtable*) :invert)
 (defparameter stack nil)
 (defparameter *matched-tokens* (list nil))
-v(defparameter *current-token* *matched-tokens*)
+(defparameter *current-token* *matched-tokens*)
 (defparameter *mark-stack* (list nil))
+(defparameter newline (string (coerce '(#\Newline) 'string)))
 
 (defun build-ast (jack-filename language-definition-filename)
   (load-tokens jack-filename)
@@ -13,9 +14,11 @@ v(defparameter *current-token* *matched-tokens*)
   (init-terminal-generator)
   (format t "Starting processing -------------------------------~%")
   (format t "~a~%" (compare-and-iterate  (get-terminal t) (get-token)))
-  (format t "~&Finished -----------------------------------------~%"))
+  (print-tokens)
+  (print-stack2)
+  )
 
-(build-ast "c:/home/mysrc/lisp/eocs/11/Pong/Ball.jack"
+(build-ast "c:/home/mysrc/lisp/eocs/test.jack"
 	     "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt")
 (defun compare-and-iterate (terminal token)
   ;; (format t "comparing: terminal [~a] and token [~a]~%" terminal (car token))
@@ -31,11 +34,8 @@ v(defparameter *current-token* *matched-tokens*)
       (format t "Stack is emptky. No valid parse found...")
       (cond
 	(last-match
-	 (cond ((listp last-match) ;gather up tokens that matched
-		(let ((m (list last-match)))
-		  (setf (cdr *current-token*) m)
-		  (setf *current-token* m))
-		))
+	 (cond ((listp last-match)
+	 	(record-match last-match)))
 	 (cond
 	   ((null (car stack))
 	    (format t "Top of stack is empty. Found a valid parse~%")
@@ -75,10 +75,16 @@ v(defparameter *current-token* *matched-tokens*)
       (let ((sym-name (symbol-name terminal)))
 	    (cond
 	      ((string-equal sym-name "stringConstant")
+	       ;; (record-match sym-name)
+	       ;; (record-match token)
 	       (stringConstant token))
 	      ((string-equal sym-name "identifier")
+	       ;; (record-match sym-name)
+	       ;; (record-match token)
 	       (identifier token))
 	      ((string-equal sym-name "integerConstant")
+	       ;; (record-match sym-name)
+	       ;; (record-match token)
 	       (integerConstant token))
 	      (t (error "Don't know this terminal: ~a~%" terminal))))))
 ;; (handler-case (funcall terminal token)
@@ -92,14 +98,19 @@ v(defparameter *current-token* *matched-tokens*)
   (setf *current-token* *matched-tokens*)
   (setf *mark-stack* (list nil))
   (set-marks)
-  (push (get-toplevel-construct-definition) stack)
+  (push (cons '@ (get-toplevel-construct-definition)) stack)
+  (push (cdar stack) stack)
  )
 
 (defun factor-out-regex (elt q)
   (let ((sn (symbol-name q)))
     (cond
-      ((equal sn "?") (list (list '/  elt '!  nil '!) '!)  )
-      ((equal sn "*")  (list ( list '/ (list elt '! elt '*) '! nil '!) '!)  )
+      ((equal sn "?")
+       ;; (record-match "list")
+       (list (list '/  elt '!  nil '!) '!)  )
+      ((equal sn "*")
+       ;; (record-match "list")
+       (list ( list '/ (list elt '! elt '*) '! nil '!) '!)  )
       ((equal sn "+")  (list elt '! elt '*))
       (t (list elt '!)))))
 
@@ -136,6 +147,7 @@ v(defparameter *current-token* *matched-tokens*)
        (let ((def (get-construct-definition (caar stack))))
 	 (if def
 	     (let ((prod (pop stack)))
+	       (record-match (list (car prod) "def" newline))
 	       (push (concatenate 'list def (cddr prod)) stack)
 	       ;; (format t ">>>Expanded prodname [~a]:~%" (car prod))
 	       (print-stack-top)
@@ -175,10 +187,6 @@ v(defparameter *current-token* *matched-tokens*)
     (declare (ignore discarded-mark))
     ))
 
-(defun print-tokens ()
-  (dolist (i (cdr *matched-tokens*))
-    (format t "~a~a" (caddr  i) (car i))))
-
 
 (defun identifier (token)
  ;;  (format t "Comparing [~a] with [~a]~%" (cdr token) "alpha_")
@@ -196,7 +204,32 @@ v(defparameter *current-token* *matched-tokens*)
 
 (defun stringConstant (token)
   (if  (equal (cadr token) "string") token))
+
+(defun record-match (match)
+  (let ((m (list match)))
+    (setf (cdr *current-token*) m)
+    (setf *current-token* m)))
 ;----------------------------------------------------
+(defun print-ast ()
+  (dolist (i (cdr *matched-tokens*))
+    (cond
+     ((listp i)
+      (format t "~a~a" (caddr  i) (car i)))
+     (t
+      (format t "~s " i))))
+	   )
+
+(defun print-tokens ()
+  (dolist (i (cdr *matched-tokens*))
+    (let ((elt (car i))
+	  (type (cadr i))
+	  (space (caddr i)))
+      
+      (if (not (symbolp elt)) (setf space "") )
+      (if (symbolp elt) (setf elt (symbol-name elt))
+	(if (equal type "sign") (setf elt "")
+	  (setf elt (format nil "-~a-" elt))))
+      (format t "~a~a " space elt))))
 
 
 (defun print-stack ()
