@@ -1,0 +1,216 @@
+;; -*- mode: emacs-lisp; coding: emacs-mule; -*-
+;; --------------------------------------------------------------------------
+;; Desktop File for Emacs
+;; --------------------------------------------------------------------------
+;; Created Sat Mar 10 13:33:52 2012
+;; Desktop file format version 206
+;; Emacs version 23.2.1
+
+;; Global section:
+(setq desktop-missing-file-warning nil)
+(setq tags-file-name nil)
+(setq tags-table-list nil)
+(setq search-ring '("jkkjjkkkk"))
+(setq regexp-search-ring '("jack" "\\_<lispfile\\_>" "pathname" "\\_<pathname\\_>" "name" "path-name" "\\_<compiled-file-name\\_>" "\\_<compile-file-name\\_>" "\\_<lisp-file-list\\_>" "\\_<list-directory\\_>" "space" "filter" "list-ddirec" "\\_<list\\_>" "gobbler" "make"))
+(setq register-alist '((104) (107)))
+(setq file-name-history '("~/mysrc/lisp/jack-compiler/" "c:/home/mysrc/lisp/jack-compiler/jack-compiler.lisp" "~/mysrc/lisp/jack-compiler/" "c:/home/mysrc/lisp/jack-compiler/jack-compiler.lisp" "~/mysrc/lisp/jack-compiler/ast-builder.wx64fsl" "~/mysrc/lisp/jack-compiler/makecore.lisp" "~/mysrc/lisp/jack-compiler/makecore.sh" "c:/home/mysrc/lisp/jack-compiler/makecore.lisp" "c:/home/.emacs.d/init.el" "c:/home/mysrc/lisp/jack-compiler/test/test.lisp" "c:/home/mysrc/lisp/jack-compiler/com.gigamonkeys.pathnames.wx64fsl" "c:/home/mysrc/lisp/jack-compiler/jc.lisp" "c:/home/mysrc/lisp/jack-compiler/vm-writer.lisp" "c:/home/mysrc/lisp/jack-compiler/jack-compiler.lisp" "c:/home/mysrc/lisp/jack-compiler/vm-writer.lisp" "c:/home/mysrc/lisp/jack-compiler/eval-jack.lisp" "~/mysrc/lisp/jack-compiler/hack-assembler.lisp" "~/mysrc/lisp/jack-compiler/jack-compiler.lisp" "~/mysrc/lisp/jack-compiler/hack-assembler" "~/mysrc/lisp/jack-compiler/jack-compiler" "~/mysrc/lisp/jack-compiler/vm-compiler.lisp" "c:/home/mysrc/lisp/jack-compiler/ast-maker.lisp" "c:/home/mysrc/lisp/jack-compiler/compile-jack.lisp" "c:/home/mysrc/lisp/jack-compiler/compile-vm.lisp" "c:/home/mysrc/lisp/jack-compiler/compile-asm.lisp" "~/mysrc/lisp/jack-compiler/com.gigamonkeys.pathnames.lisp" "c:/home/mysrc/lisp/com.gigamonkeys.pathnames.lisp" "~/mysrc/lisp/jack-compiler/ast-builder.lisp" "c:/home/mysrc/lisp/jack-compiler/vm-writer.lisp" "c:/home/mysrc/lisp/jack-compiler/jc.lisp"))
+
+;; Buffer section -- buffers listed in same order as in buffer list:
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/jc.lisp"
+  "jc.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  807
+  '(784 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/ast-builder.lisp"
+  "ast-builder.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/defs-jack.lisp"
+  "defs-jack.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode hs-minor-mode slime-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-dos)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/jack-compiler.lisp"
+  "jack-compiler.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  26
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . iso-latin-1-dos)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/tokenize-jack2.lisp"
+  "tokenize-jack2.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode hs-minor-mode slime-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-dos)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/com.gigamonkeys.pathnames.lisp"
+  "com.gigamonkeys.pathnames.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/hack-assembler.lisp"
+  "hack-assembler.lisp"
+  'lisp-mode
+  '(eldoc-mode slime-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/vm-compiler.lisp"
+  "vm-compiler.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  1
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  nil
+  "jack-compiler"
+  'dired-mode
+  nil
+  510
+  '(nil nil)
+  t
+  '("c:/home/mysrc/lisp/jack-compiler/")
+  nil)
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/makecore.sh"
+  "makecore.sh"
+  'sh-mode
+  nil
+  86
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/.emacs.d/init.el"
+  "init.el"
+  'emacs-lisp-mode
+  '(eldoc-mode paredit-mode)
+  1272
+  '(26545 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-dos)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/test/test.lisp"
+  "test.lisp<2>"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  92
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/vm-writer.lisp"
+  "vm-writer.lisp"
+  'lisp-mode
+  '(eldoc-mode slime-mode)
+  257
+  '(1 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/eval-jack.lisp"
+  "eval-jack.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  332
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/packages.lisp"
+  "packages.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  245
+  '(24 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/mysrc/lisp/jack-compiler/test.lisp"
+  "test.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  1
+  '(81 nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/lispbox-0.7-ccl-1.6-windowsx86/lispbox-0.7/emacs-23.2/etc/COPYING"
+  "COPYING"
+  'fundamental-mode
+  '(view-mode goto-address-mode)
+  1
+  '(1 nil)
+  t
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+
+(desktop-create-buffer 206
+  "c:/home/lispbox-0.7-ccl-1.6-windowsx86/lispbox-0.7/ccl-1.6-windowsx86/lib/level-2.lisp"
+  "level-2.lisp"
+  'lisp-mode
+  '(eldoc-mode paredit-mode slime-mode)
+  1
+  '(nil nil)
+  nil
+  nil
+  '((buffer-file-coding-system . undecided-unix)))
+

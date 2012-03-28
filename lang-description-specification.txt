@@ -1,0 +1,45 @@
+'xxx'  :  Quotation is used for tokens that appear verbatim (terminals); 
+xxx  :  Names for language constructs are unquoted (non-terminals); 
+( )  :  Parentheses are used for grouping of language constructs; 
+x | y  :  Indicates that either x or y can appear; 
+x? :  Indicates that x appears 0 or 1 times; 
+x*  :  Indicates that x appears 0 or more times
+x+  :  Indicates that x appears 1 or more times
+-----------------------------
+No need for parens around the toplevel construct definitiion, so
+(function: constructor name '(' bla* ')' )
+is not necessary. Just
+function: constructor name '(' bla* ')'
+without parens is enough. The parens just make the parser do another level of
+inspection. With parens it implicitly quantifies it with {1} as it does with every
+element that doesn't have *,+ or ? after it. And processes it as such. Without the parens
+it just goes through the list of elements and validates them in turn. With parens it treats the construct as having one element, and tries to validates it by going into the list and then validate the elements.
+-----------------------------
+If you want to quantify a toplevel definition do it where the construct 
+gets referenced. The parser skips optional constructs (* and ?) unless there is no match
+later on in the construct with something non-optional.
+
+construct1: a b c d construct2 e f
+construct2: (g h)?
+
+makes the parser check for g and h because it tries to find construct2 because it was
+told to find it in construct1
+Write it like this:
+
+construct1: a b c d construct2? e f
+construct2: g h
+
+Construct 2 gets skipped now, unless e doesn't match.
+It is also clearer.
+But this might be implemented a bit cleverer.
+----------------
+In either, either lists such as ( a b | c d e again as a toplevel construct the parens
+can be left off. Embedded you need the parens of course. It will validate the first match
+it finds. So in (a b | a b c) d it will match a b and then move on to match the next token
+with d, even if your tokens go like this: a b c d. a and b get matched, then the whole
+or construct gets tagged successful and the next token c will be compared to d. So always
+put the longer one of two constructs that start of the same before the other one. So the
+construct should have been (a b c | a b ) d or  a b c? d. This obviates the need for the
+parser to check every either either clause and pick the longest match. Now it can just drop the either construct as soon as it finds a match
+
+

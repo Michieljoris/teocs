@@ -1,0 +1,24 @@
+file: class 
+class: 'class' className '{' classVarDec*  subroutineDec* '}' 
+classVarDec: ('static' | 'field' ) type varName (',' varName)*  ';' 
+type:  'int' | 'char' | 'boolean' | className 
+subroutineDec: ('constructor' | 'function' | 'method')  ('void' | type) subroutineName '(' parameterList? ')' subroutineBody
+parameterList:  type varName  (',' type varName)*
+subroutineBody: '{' varDec* statement* '}' 
+varDec:  'var' type varName (',' varName)* ';' 
+className: identifier 
+subroutineName: identifier 
+varName: identifier 
+statement: letStatement | ifStatement | whileStatement | doStatement | returnStatement  
+letStatement: 'let'  varName ('[' expression ']')? '=' expression ';' 
+ifStatement: 'if' '(' expression ')' '{' statement* '}'  ( 'else' '{' statement* '}' )?
+whileStatement: 'while' '(' expression ')' '{' statement* '}' 
+doStatement:  'do'  subroutineCall ';' 
+returnStatement  'return'  expression? ';' 
+expression: term (op term)* 
+term: integerConstant | stringConstant | keywordConstant | (varName '[' expression ']') | subroutineCall  | ('(' expression ')') | (unaryOp term) | varName
+subroutineCall: (subroutineName '(' expressionList? ')') |( ( className | varName) '.' subroutineName '(' expressionList? ')') 
+expressionList: expression (',' expression)* 
+op: '+' | '-' | '*' | '/' | '&' | '|' | '<' | '>' | '=' 
+unaryOp: '-' | '~'  
+keywordConstant: 'true' | 'false' | 'null' | 'this' 
