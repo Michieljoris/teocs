@@ -1,17 +1,21 @@
+;Exhaustive depth first recursive search EBNF programmable LL parser
+;producing AST in sexpr form
 (in-package :ast-builder)
 (setf (readtable-case *readtable*) :invert)
 
+(defstruct ast
+  ast sign keyword integerConstant stringConstant )
+
 (defun build-ast (jack-filename language-definition-filename)
-  (walk-tree jack-filename language-definition-filename)
-  )
+  (print-tokens (walk-tree jack-filename language-definition-filename)))
 
 (defun convert-to-sexp ()
     (read-from-string (with-output-to-string (*standard-output*)
-				(print-tokens) )))
+				(build-ast) )))
 
 
-(defun print-tokens ()
-  (dolist (i (cdr *matched-tokens*))
+(defun print-tokens (matched-tokens)
+  (dolist (i (cdr matched-tokens))
     (let ((elt (car i))
 	  (type (cadr i))
 	  (space (caddr i)))
@@ -29,38 +33,6 @@
 	    (setf elt (format nil "-~a-" elt)))))
       
       (format t "~a~a" space elt))))
-
-
-(defun print-stack ()
-  )
-(defun print-stack2 ()
-  (let ((indent 1)
-	(index 0)
-	(stack (reverse stack)))
-    (dotimes (i (length stack))
-      (format t "~VT~a: " indent index )
-      (cond ((equal (car (elt stack i)) '@)
-	     (incf indent)
-	     ;(pop (elt stack i))
-	     ))
-      (incf index)
-      (labels ((p (production)
-		  (cond
-		   ((null production) nil)
-		   (t (format t " ~a~a "   (car production) (cadr production))
-		      (p (cddr production))))))
-	(p (elt stack i))
-	(format t "~%")))))
-(defun print-stack-top ())
-(defun print-stack-top1 ()
-  (labels ((p (production)
-	     (cond
-	       ((null production) nil)
-	       (t (format t " ~a~a "   (car production) (cadr production))
-		  (p (cddr production))))))
-    (p (car stack))
-    (format t "~%")))
-
 
 
 (build-ast "c:/home/mysrc/lisp/eocs/11/Pong/Main.jack"

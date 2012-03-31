@@ -1,41 +1,19 @@
-start: production* startprod production*
-production: prodName ":" prodDescription
-prodDescription: list EOL
-list: seq | alt
-seq: qelt*
-alt: qelt ("|" qelt )*
-qelt: elt reg?
-elt: lit | prodName | ("(" list ")")
-reg: "*" | "?" | "+"
-lit: stringConstant
-prodName: identifier
-startprod: "start" ":" prodDescription 
+start: production* startprod production*;
+production: prodName ":" prodDescription;
+prodDescription: list ";" ;
+list: seq | alt;
+seq: qelt*;
+alt: qelt ("|" qelt )*;
+qelt: elt reg?;
+elt: lit | prodName | ("(" list ")");
+reg: "*" | "?" | "+";
+lit: stringConstant;
+prodName: identifier;
+startprod: "start" ":" prodDescription ;
 
-
-
-//elt? -> eps | elt  alternation
-//elt+ -> elt elt*   sequence
-//elt* -> eps | (elt elt*) alternation
 //grammar can not be left recursive!!!, maybe do a check for it, not difficult
-
-
-s: t1 n1 n2 t2
-n1: 3 | t3
-n2: 3 | t4
-
-t1 t4 t2
-
-t1 n1 n2 t2
-
-t3 n2 t2
-n2 t2
-
-t3 n2 t2
-t4 t2
-t2
-
-t3 n2 t2
-t4 t2
+//undefined productions are types of tokens. So the tokenizer has to produce
+//tokens having these types, for example stringConstant, integerConstant, identifier etc.
 
 
 

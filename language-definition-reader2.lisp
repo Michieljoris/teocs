@@ -22,7 +22,7 @@
 	 while line do 
 	   (add-to-production-list (read-from-string (clean line))))
       (close in))
-    (if (not in) (out "File doesn't exit" file-name)))
+    (if (not in) (out "Language grammare file doesn't exit" file-name)))
 ;   (princ production-list)
   )
 
@@ -46,6 +46,12 @@
 	     c)
 	    ((char= c #\|) #\/)
 	    ((char= c #\:) #\Space)
+	    ((char= c #\;) #\Space) ;productions have to finish with a
+	    ;semicolon, but for now they are discarded, productions
+	    ;have to fit on a line, the EOL is the marker to read a new
+	    ;production.This does not conform to the grammar definition
+	    ;of grammar definitions, which states that productions are
+	    ;ended with semicolons. 
 	    ((char= c #\Return) #\Space)
 	    (t c))
 	 cleanedup-line)
@@ -111,8 +117,6 @@
   (and (listp elt) (numberp (car elt))))
 
 (defun get-toplevel-construct-definition ()
-  ;; (print "getting toplevel def")
-  ;; (print production-list)
    (getf production-list 'file))
 
 (defun get-construct-definition (element)
@@ -121,53 +125,3 @@
   (getf production-list element))
 (defun get-construct-definition-readable (element)
   (getf dlist element))
-
-;; (defun identifier (token)
-;;   ;; (format t "Comparing [~a] with [~a]~%" (cdr token) "alpha_")
-;;   ;; (if (equal (cdr token) "alpha_")
-;;   ;;     (format t "Validated by custom function..~%")
-;;   ;;     (format t "Not validated by custom function!!!~%")
-;;   ;;   )
-;;   ;; (print (type-of token))
-;;   ;; (print (type-of "alpha_"))
-;;   (format t "type of token is :~a~%" (cadr token))
-;;   (if  (equal (cadr token) "alpha_")  token))
-
-
-;; (defun integerConstant (token)
-;;   (format t "heeeeeeeeeeeeeeeeeeeeeeee stringConstant")
-;;   (if  (equal (cadr token) "number") token))
-
-;; (defun stringConstant (token)
-;;   (format t "heeeeeeeeeeeeeeeeeeeeeeee stringConstant")
-;;   (if  (equal (cadr token) "string") token))
-
-
-;(identifier '("bla" . "alpha_"))
-;(print ( quantify-elements def)) 
-;(defparameter def (list 'class "string" (list 'a '* 'b) (list 'c 'd) '?))
-;(print def)
-;(load-defs "")
-;(print ( listify-definitions definitions))
-
-; (defun get-definition-old (definition)
- ; (getf production-list  ( intern definition :language-definition)))
-
-;(print (get-definition  'subroutineDec))
-
-;(print ( getf production-list 'statement) )
-
-;(print ( get-toplevel-definition))
-
-;;this doubly recursive function listifies the formal language definition from above , now not needed anymore... 
-(defun listify-definitions (defs)
-  (cond ((null (car defs)) () )
-	(t (cons (labels ((read-def () 
-			    (let ((p (pop defs))) 
-			      (cond ((equal p '@) ())
-				    (t (cons p (read-def)))))))
-		   (read-def ))
-		 (listify-definitions defs)))))
-
-
-

@@ -1,5 +1,10 @@
 (in-package :tokenizer)
-
+;;primitive DFA looking for numbers, strings, whitespace, signs, keywords and
+;;identifiers, discarding comments and comment blocks
+;;Every token gets put in its own list, with the cadr set to its type and
+;;the white space found before it set as its caddr 
+;;A more advanced version would let you specify the tokens to look for in the
+;;language grammar definition file.
 (defparameter *char-fetcher* nil)
 (defparameter *token* nil) 
 (defparameter *gobbler* nil)
@@ -18,6 +23,8 @@
   (setf *char-fetcher* 
 	(let ((in (open pathname :if-does-not-exist nil))
 	      (processing t))
+	  
+	  (if in (format t "Tokenizing ~a~%" pathname))
 	  (if in
 	      (lambda ()
 		(if processing 
@@ -39,7 +46,10 @@
   (let (char) (setf char "bla")
        (loop while (setf char (get-char)) do (funcall *gobbler* char)))
   (setf *tokens* (cdr *tokens*))
-  (setf *current-token* *tokens*))
+  (setf *current-token* *tokens*)
+  (format t "~{~a~%~}" *tokens*)
+  ;; (print-tokens)
+  )
 
 (defun reset-gobbler (char) (push-char char) (set-gobbler char))
 (defun gobble-alpha-chars (char)
@@ -48,7 +58,7 @@
   (push-char char))
 (defun gobble-digits (char)
   (cond (( not (digit-char-p char))
-	 (set-gobbler char) (pop-token "number")))
+	 (set-gobbler char) (pop-token "integerConstant")))
   (push-char char))
 (defun gobble-white-space (char)
   (cond ((not ( white-space-p char))
@@ -62,7 +72,7 @@
 	 (push-char char))))
 (defun gobble-string (char)
   (cond ((char= char #\")
-	 (push-char char) (pop-token "string")
+	 (push-char char) (pop-token "stringConstant")
 	 (setf *gobbler* #'reset-gobbler))
 	(t (push-char char))))
 
@@ -108,8 +118,11 @@
   ;; (format t "<~a> ~a~%" type (string (coerce ( reverse *token*) 'string)) )
   (let ((token (string (coerce ( reverse *token*) 'string))))
     ;; (format t "New token is: [~a]~%" token)
-    (if (and (equal type "alpha_") (is-keyword token))
-	(setf type "keyword"))
+    (setf type 
+	  (if (equal type "alpha_")
+	      (if (is-keyword token) "keyword"
+		"identifier")
+	    type))
     (if (equal type "space")
 	(setf *last-space* (string (coerce (reverse *token*) 'string)))
       (let ((new-token (list  (list 
@@ -146,6 +159,7 @@
     ))
 
 ;; (load-tokens "c:/home/EOCS/projects/Pong/Main.jack")
+
 
 (defun print-tokens ()
   (dolist (i *tokens*)

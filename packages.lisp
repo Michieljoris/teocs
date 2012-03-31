@@ -29,8 +29,12 @@
 	   :sign
 	   :string
 	   :number))
-(defpackage :com.michieljoris.eocs.ast-builder
+(defpackage :com.michieljoris.eocs.tree-walker
   (:use :cl :tokenizer :language-definition)
+  (:nicknames :tree-walker)
+  (:export :walk-tree))
+(defpackage :com.michieljoris.eocs.ast-builder
+  (:use :cl :tree-walker)
   (:nicknames :ast-builder)
   (:export :build-ast))
 (defpackage :com.michieljoris.eocs.jack-compiler

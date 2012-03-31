@@ -1,5 +1,5 @@
-;Exhaustive depth first recursive search EBNF programmable LL parser
-;producing AST in sexpr form
+;This package walks the grammar tree, using the tokens as its guide.
+;It tries to find a way to the end of a branch.
 (in-package :tree-walker)
 (setf (readtable-case *readtable*) :invert)
 (defparameter stack nil)
@@ -8,17 +8,16 @@
 (defparameter *mark-stack* (list nil))
 (defparameter newline (string (coerce '(#\Newline) 'string)))
 
-(defun walk-tree ()
+(defun walk-tree (jack-filename language-definition-filename)
+  (load-tokens jack-filename)
+  (load-language-definition-file language-definition-filename)
   (init-terminal-generator)
-  (format t "Starting processing -------------------------------~%")
+  (format t "Analyzing..~%")
   (format t "~a~%" (compare-and-iterate  (get-terminal t) (get-token)))
-  ;; (print-tokens)
   *matched-tokens*
-  ;; (print-stack2)
   )
 
 (defun compare-and-iterate (terminal token)
-  ;; (format t "comparing: terminal [~a] and token [~a]~%" terminal (car token))
   (cond
     ((and terminal (not token)) "ERROR: Unexpected EOF")
     ((and (not terminal) token) "ERROR: EOF expected")
@@ -31,27 +30,29 @@
       (format t "Stack is emptky. No valid parse found...")
       (cond
 	(last-match
-	 (cond ((listp last-match)
-	 	(record-match last-match)))
+	 (cond ((listp last-match) ;found token, tokens come in lists...
+	 	(record-match last-match))) ;write it away into our log
 	 (cond
-	   ((null (car stack))
+	   ((null (car stack)) ;got to the end of the branch..
 	    (format t "Top of stack is empty. Found a valid parse~%")
 	    (pop stack)
 	   ;to find other parses, do a get-terminal here.. 
 	    nil)
-	   (t
+	   (t  ;still processing branch.. 
 	    (expand-node)
 	    (let ((terminal (pop (car stack))))
-	      (pop (car stack))
-	      (cond
+	      (pop (car stack)) ;get rid of superfluous regexp marker
+	     ;the expand-node above would have factored them out by now 
+	      (cond ;before we send this terminal back to be compared
+	       ;to the next token, check if it is an ast marker,
 	       ((is-ast-marker terminal)
+		; make a note of it in our log of matched tokens
 		(record-match (list  terminal "ast" ""))
-		;; ((equal terminal 'close)
-		;; 	(record-match (list "close" "ast" ""))
+		;and send the next terminal to be compared instead
 		(get-terminal t))
-	       (t terminal))))))
-	(t
-	  ;; (format t "Discarding path: ~%" ))
+	       (t ;this terminal is not an ast marker, send it to be compared
+		terminal))))))
+	(t ;terminal didn't match token, abandon these branches..
 	  (pop stack)
 	  (cut-branches)
 	  (go-back-to-last-set-marks)
@@ -64,35 +65,30 @@
   (cond ((equal '@ (caar stack)) ;this is a node,
 	 (pop stack)   ;discarded all paths, so discarding node
 	 (discard-last-set-marks)
-	 (cut-branches)))
-  
-  )
+	 ;do this recursively, a branch might be the last branch of
+	 ;it's parent branch, it has to be cut too then.
+	 (cut-branches))))
 
 (defun match (terminal token)
-  ;; (format t "matching [~a] with [~a]~%"  terminal (car token))
   (if (stringp terminal) (progn
-			   ;; (format t "string compare result: ~a~%"
-				   ;; (equal terminal (car token)))
+			  ;found a real terminal, has to match token 
 			   (if (equal terminal (car token))
 			       token))
-      
-      ;; (if (symbolp terminal)
-      
-      (let ((sym-name (symbol-name terminal)))
-	    (cond
-	      ((string-equal sym-name "stringConstant")
-	       (stringConstant token))
-	      ((string-equal sym-name "identifier")
-	       (identifier token))
-	      ((string-equal sym-name "integerConstant")
-	       ;; (record-match token)
-	       (integerConstant token))
-	      (t (error "Don't know this terminal: ~a~%" terminal))))))
+    ;our terminal is a symbol, is our token what the symbol stands for?
+    ;Find out by comparing it to the type of the token.
+    (if ( string-equal (symbol-name terminal) (cadr token)) token)))
+      ;; (let ((sym-name (symbol-name terminal)))
+      ;; 	    (cond
+      ;; 	      ((string-equal sym-name "stringConstant")
+      ;; 	       (stringConstant token))
+      ;; 	      ((string-equal sym-name "identifier")
+      ;; 	       (identifier token))
+      ;; 	      ((string-equal sym-name "integerConstant")
+      ;; 	       (integerConstant token))
+      ;; 	      (t (error "Don't know this terminal: ~a~%" terminal))))))
 ;; (handler-case (funcall terminal token)
 ;; 		  (undefined-function
 ;; 		   () (format t "Error: undefined construct ~a~%" terminal)))))  
-
-
 (defun init-terminal-generator ()
   (setf stack nil)
   (setf *matched-tokens* (list nil))
@@ -107,14 +103,10 @@
   (let ((sn (symbol-name q)))
     (cond
       ((equal sn "?")
-       ;; (record-match (list  "open-list" "ast" ""))
-       (list '$open-list '! (list '/  elt '!  nil '!) '! '$close-list '!)  )
-       ;; (list (list '/  elt '!  nil '!) '! )  )
+       (list '$open-@list '! (list '/  elt '!  nil '!) '! '$close-@list '!)  )
       ((equal sn "*")
-       ;; (record-match (list  "open" "ast" ""))
-       (list '$open-list '! ( list '/ (list elt '! elt '*) '! nil '!) '!
-	     '$close-list '!)  )
-       ;; (list ( list '/ (list elt '! elt '*) '! nil '!) '! )  )
+       (list '$open-@list '! ( list '/ (list elt '! elt '*) '! nil '!) '!
+	     '$close-@list '!)  )
       ((equal sn "+")  (list elt '! elt '*))
       (t (list elt '!)))))
 
@@ -125,8 +117,6 @@
 
 (defun expand-node ()
   (unpack-top-node)
-  ;; (format t ">>>foctored out the regex ? and + and * of the first elt:~%")
-  ;; (print-stack-top)
   (let ((node (caar stack)))
     (cond
       ((listp node)
@@ -135,32 +125,22 @@
 	  (let ((top (car stack)))
 	    (push (set-marks) (car stack)) 
 	    (push '@ (car stack)) ;mark it as a node
-	    ;(cond ((car stack) (push nil stack) (set-marks)))
 	    (grow-branches (cdr node) (cddr top))
-	    ;; (format t ">>>Grew branches:~%")
-	    ;; (print-stack)
 	    (expand-node)))
 	 (t
 	  (let ((prod (pop stack)))
 	    (push (concatenate 'list (car prod) (cddr prod)) stack)
-	    ;; (format t ">>>Unwrapped list [~a]:~%" (car prod))
-	    ;; (print-stack-top)
 	    (expand-node))
 	  )))
       ((not (stringp (caar stack)))
        (let ((def (get-construct-definition (caar stack))))
 	 (if def
 	     (let ((prod (pop stack)))
-	       ;; (record-match (list  "open-production" "ast" ""))
-	       ;; (record-match (list (car prod) "def" ""))
-	       ;; (format t "~a" (dollarfy-symbol (car prod)))
 	       (push (concatenate 'list
-				  (list (prefix-symbol "$" (car prod)) '!)
+				  (list (prefix-symbol "$open-" (car prod)) '!)
 				  def
 				  (list (prefix-symbol "$close-" (car prod)) '!)
 				  (cddr prod)) stack)
-	       ;; (format t ">>>Expanded prodname [~a]:~%" (car prod))
-	       ;; (print-stack-top)
 	       (expand-node))))))))
 
 (defun prefix-symbol (str sym)
@@ -177,13 +157,6 @@
 		  (push (cons elt (cons q rest-of-branch)) stack))
 	     (push rest-of-branch stack))
 	 (grow-branches branches rest-of-branch)))))
-    
-
-(defun start ()
-  (init-terminal-generator)
-  ;; (print-stack)
-  )
-
 
 (defun set-marks ()
   (push *current-token* *mark-stack*)
@@ -201,25 +174,38 @@
     (declare (ignore discarded-mark))
     ))
 
-
-(defun identifier (token)
- ;;  (format t "Comparing [~a] with [~a]~%" (cdr token) "alpha_")
- ;;  (if (equal (cdr token) "alpha_")
- ;;      (format t "Validated by custom function..~%")
- ;;      (format t "Not validated by custom function!!!~%")
- ;;    )
- ;;  (print (type-of token))
- ;;  (print (type-of "alpha_"))
- ;; (format t "type of token is :~a~%" (cadr token))
- (if  (equal (cadr token) "alpha_")  token))
-
-(defun integerConstant (token)
-  (if  (equal (cadr token) "number") token))
-
-(defun stringConstant (token)
-  (if  (equal (cadr token) "string") token))
-
 (defun record-match (match)
   (let ((m (list match)))
     (setf (cdr *current-token*) m)
     (setf *current-token* m)))
+
+(defun print-stack ()
+  (let ((indent 1)
+	(index 0)
+	(stack (reverse stack)))
+    (dotimes (i (length stack))
+      (format t "~VT~a: " indent index )
+      (cond ((equal (car (elt stack i)) '@)
+	     (incf indent)
+	     ;(pop (elt stack i))
+	     ))
+      (incf index)
+      (labels ((p (production)
+		  (cond
+		   ((null production) nil)
+		   (t (format t " ~a~a "   (car production) (cadr production))
+		      (p (cddr production))))))
+	(p (elt stack i))
+	(format t "~%")))))
+
+(defun print-stack-top ()
+  (labels ((p (production)
+	     (cond
+	       ((null production) nil)
+	       (t (format t " ~a~a "   (car production) (cadr production))
+		  (p (cddr production))))))
+    (p (car stack))
+    (format t "~%")))
+
+
+
