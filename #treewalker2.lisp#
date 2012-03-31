@@ -8,7 +8,9 @@
 (defparameter *mark-stack* (list nil))
 (defparameter newline (string (coerce '(#\Newline) 'string)))
 
-(defun walk-tree ()
+(defun walk-tree (jack-filename language-definition-filename)
+  (load-tokens jack-filename)
+  (load-language-definition-file language-definition-filename)
   (init-terminal-generator)
   (format t "Starting processing -------------------------------~%")
   (format t "~a~%" (compare-and-iterate  (get-terminal t) (get-token)))
@@ -155,7 +157,7 @@
 	       ;; (record-match (list (car prod) "def" ""))
 	       ;; (format t "~a" (dollarfy-symbol (car prod)))
 	       (push (concatenate 'list
-				  (list (prefix-symbol "$" (car prod)) '!)
+				  (list (prefix-symbol "$open-" (car prod)) '!)
 				  def
 				  (list (prefix-symbol "$close-" (car prod)) '!)
 				  (cddr prod)) stack)
