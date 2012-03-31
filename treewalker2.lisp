@@ -47,7 +47,7 @@
 	       ;to the next token, check if it is an ast marker,
 	       ((is-ast-marker terminal)
 		; make a note of it in our log of matched tokens
-		(record-match (list  terminal "ast" ""))
+		(record-match (list  terminal "ast" (pop (car stack))))
 		;and send the next terminal to be compared instead
 		(get-terminal t))
 	       (t ;this terminal is not an ast marker, send it to be compared
@@ -103,10 +103,10 @@
   (let ((sn (symbol-name q)))
     (cond
       ((equal sn "?")
-       (list '$open-@list '! (list '/  elt '!  nil '!) '! '$close-@list '!)  )
+       (list '$open '! '@list (list '/  elt '!  nil '!) '! '$close '! '@list)  )
       ((equal sn "*")
-       (list '$open-@list '! ( list '/ (list elt '! elt '*) '! nil '!) '!
-	     '$close-@list '!)  )
+       (list '$open '! '@list ( list '/ (list elt '! elt '*) '! nil '!) '!
+	     '$close '! '@list)  )
       ((equal sn "+")  (list elt '! elt '*))
       (t (list elt '!)))))
 
@@ -137,14 +137,14 @@
 	 (if def
 	     (let ((prod (pop stack)))
 	       (push (concatenate 'list
-				  (list (prefix-symbol "$open-" (car prod)) '!)
+				  (list '$open  '! (car prod))
 				  def
-				  (list (prefix-symbol "$close-" (car prod)) '!)
+				  (list'$close  '! (car prod))
 				  (cddr prod)) stack)
 	       (expand-node))))))))
 
-(defun prefix-symbol (str sym)
-  (intern (concatenate 'string str (symbol-name sym))))
+;; (defun prefix-symbol (str sym)
+;;   (intern (concatenate 'string str (symbol-name sym))))
 
 (defun grow-branches (branches rest-of-branch)
   (cond
