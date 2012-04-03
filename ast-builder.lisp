@@ -48,19 +48,47 @@
    ( stringConstant (declare (ignore arg)) (concatenate 'string
 		       "<stringConstant>" elt "</stringConstant>" newline)))) 
 
+(defparameter type-format
+  (make-ast-format
+   ( ast (if (not (string-equal arg "@list"))
+	     (if (string-equal (symbol-name elt) "$open")
+		 (concatenate 'string "ast<" (symbol-name arg) ">" (typeof elt) newline)
+	       "")))
+   ( sign (declare (ignore arg)) (concatenate 'string
+		       "<symbol>" elt  (typeof elt) newline)) 
+   ( operand (declare (ignore arg)) (concatenate 'string
+		       "<symbol>" elt  (typeof elt) newline)) 
+   ( keyword (declare (ignore arg)) (concatenate 'string
+		       "<keyword>" elt  (typeof elt) newline)) 
+   ( qualifier (declare (ignore arg)) (concatenate 'string
+		       "<keyword>" elt  (typeof elt) newline)) 
+   ( identifier (declare (ignore arg)) (concatenate 'string
+		       "<identifier>" elt  (typeof elt) newline)) 
+   ( integerconstant (declare (ignore arg)) (concatenate 'string
+		       "<integerConstant>" elt  (typeof elt) newline))
+   ( stringConstant (declare (ignore arg)) (concatenate 'string
+		       "<stringConstant>" elt (typeof elt) newline)))) 
+
+(defun typeof (sym)
+ (cond
+  ((stringp sym) " string")
+  ((symbolp sym) " symbol")
+  (t "???????????")
+  ))
+
 (defparameter sexpr-format
   (make-ast-format
    ( ast  (if (string-equal arg "@list")
-   	      (if (string-equal (symbol-name elt) "$open") " (" ") " )
+   	      (if (string-equal (symbol-name elt) "$open") " (list " ") " )
 	    (if (string-equal (symbol-name elt) "$open")
 		(concatenate 'string
 			     " (@" (invert-case2 (symbol-name arg)) " ") ") ")))
    ( sign (declare (ignore elt)) (declare (ignore arg)) "") 
    ( operand (declare (ignore arg)) (concatenate  'string "\"" elt "\" "))
    ( keyword  (declare (ignore elt)) (declare (ignore arg)) "") 
-   ( qualifier (declare (ignore arg)) (concatenate 'string  elt " ")) 
+   ( qualifier (declare (ignore arg)) (concatenate 'string  "'" elt " ")) 
    ( integerConstant (declare (ignore arg)) (concatenate 'string elt " "))
-   ( identifier (declare (ignore arg)) (concatenate 'string "$" elt " "))
+   ( identifier (declare (ignore arg)) (concatenate 'string "'$" elt " "))
    ( stringConstant (declare (ignore arg)) (concatenate 'string elt " "))))
 
 ;;hacking to get around CL's annoying case handling of symbols. 
@@ -133,12 +161,6 @@
 (defun get-formatter (type ast-format)
   (cdr (assoc type ast-format :test #'string-equal)))
 
-(build-ast "c:/home/mysrc/lisp/eocs/11/pong/test.jack"
-	   "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt"
-	   sexpr-format
-	   *standard-output*)
-
-
 (defun get-sexpr-string (jack-filename language-definition-filename )
   ; (read-from-string
    (with-output-to-string
@@ -163,3 +185,8 @@
 ;; 		language-definition-filename
 ;; 		sexpr-format
 ;; 		output))))
+
+;; (build-ast "c:/home/mysrc/lisp/eocs/11/pong/test.jack"
+;; 	   "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt"
+;; 	   type-format
+;; 	   *standard-output*)
