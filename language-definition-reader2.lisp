@@ -22,7 +22,7 @@
 	 while line do 
 	   (add-to-production-list (read-from-string (clean line))))
       (close in))
-    (if (not in) (out "Language grammare file doesn't exit" file-name)))
+    (if (not in) (out "Language grammar file doesn't exit" file-name)))
 ;   (princ production-list)
   )
 
@@ -33,6 +33,7 @@
 				    :element-type 'character))
 	(in-quotes nil))
     (vector-push-extend #\( cleanedup-line)
+    
     (dotimes (i (length line))
       (let ((c (elt line i)))
 	(vector-push-extend  
@@ -70,12 +71,12 @@
 	   (setf production (list production '!)))
        (setf production-list (cons (car def)
 				   (cons production production-list)))
-       ;(format t "~&~a = ~{~s ~}~%" (car def) production)
+       ;; (format t "~&~a = ~{~s ~}~%" (car def) production)
        ))
     (t (setq stop t))) 
   )
 
-;; (load-language-definition-file "c:\\home\\mysrc\\lisp\\eocs\\jack-compiler\\jack-def-test.txt")
+;(load-language-definition-file "c:\\home\\mysrc\\lisp\\eocs\\jack-compiler\\jack-def-test.txt")
 (defun quantify-elements (def)
   (if (find '/ def) (cons '/ (quantify-elements-recursive def))
       (quantify-elements-recursive def))
@@ -123,5 +124,6 @@
   (incf *counter*)
   (if (> *counter* 8000) (error "to many def requests. Must be a loop!!!"))
   (getf production-list element))
+
 (defun get-construct-definition-readable (element)
   (getf dlist element))

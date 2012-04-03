@@ -21,13 +21,13 @@
   (cond
     ((and terminal (not token)) "ERROR: Unexpected EOF")
     ((and (not terminal) token) "ERROR: EOF expected")
-    ((not (or token terminal)) "Success!!")
+    ((not (or token terminal)) "Finished walking the tree")
     (t (compare-and-iterate
 	(get-terminal (match terminal token)) (get-token)))))
 
 (defun get-terminal (last-match)
   (if (null stack) 
-      (format t "Stack is emptky. No valid parse found...")
+      (format t "Stack is empty. No valid parse found...~&")
       (cond
 	(last-match
 	 (cond ((listp last-match) ;found token, tokens come in lists...
@@ -77,18 +77,7 @@
     ;our terminal is a symbol, is our token what the symbol stands for?
     ;Find out by comparing it to the type of the token.
     (if ( string-equal (symbol-name terminal) (cadr token)) token)))
-      ;; (let ((sym-name (symbol-name terminal)))
-      ;; 	    (cond
-      ;; 	      ((string-equal sym-name "stringConstant")
-      ;; 	       (stringConstant token))
-      ;; 	      ((string-equal sym-name "identifier")
-      ;; 	       (identifier token))
-      ;; 	      ((string-equal sym-name "integerConstant")
-      ;; 	       (integerConstant token))
-      ;; 	      (t (error "Don't know this terminal: ~a~%" terminal))))))
-;; (handler-case (funcall terminal token)
-;; 		  (undefined-function
-;; 		   () (format t "Error: undefined construct ~a~%" terminal)))))  
+
 (defun init-terminal-generator ()
   (setf stack nil)
   (setf *matched-tokens* (list nil))
@@ -105,8 +94,10 @@
       ((equal sn "?")
        (list '$open '! '@list (list '/  elt '!  nil '!) '! '$close '! '@list)  )
       ((equal sn "*")
-       (list '$open '! '@list ( list '/ (list elt '! elt '*) '! nil '!) '!
+       (list '$open '! '@list ( list '/ (list elt '! elt '&) '! nil '!) '!
 	     '$close '! '@list)  )
+      ((equal sn "&")
+       (list  (list '/ (list elt '! elt '&) '! nil '!) '!))
       ((equal sn "+")  (list elt '! elt '*))
       (t (list elt '!)))))
 
@@ -142,9 +133,6 @@
 				  (list'$close  '! (car prod))
 				  (cddr prod)) stack)
 	       (expand-node))))))))
-
-;; (defun prefix-symbol (str sym)
-;;   (intern (concatenate 'string str (symbol-name sym))))
 
 (defun grow-branches (branches rest-of-branch)
   (cond
@@ -209,3 +197,5 @@
 
 
 
+;; (walk-tree "c:/home/mysrc/lisp/eocs/11/pong/test.jack"
+;; 	   "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt" )

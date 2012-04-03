@@ -12,11 +12,14 @@
 (defparameter *current-token* *tokens*)
 (defparameter *mark-stack* (list nil))
 (defparameter *last-space* "empty space!!")
-(defparameter *keywords* (list "void" "if" "class" "constructor"
-			       "function" "method" "field" "static"
-			       "var" "int" "char" "boolean" "true"
-			       "false" "null" "this" "let" "do"
+(defparameter *keywords* (list "if" "class" 
+			       "var" "let" "do"
 			       "else" "while" "return"))
+(defparameter *operands* (list "+" "-" "*" "/" "&" "|" "<" ">" "=" "~") )
+(defparameter *qualifiers* (list "true" "false" "null" "this"
+				 "void" "int" "char" "boolean"
+				 "constructor" "function" "method"
+				 "field" "static"))
 (defun get-char () (funcall *char-fetcher*)) 
 
 (defun set-char-fetcher-for (pathname)
@@ -47,13 +50,13 @@
        (loop while (setf char (get-char)) do (funcall *gobbler* char)))
   (setf *tokens* (cdr *tokens*))
   (setf *current-token* *tokens*)
-  (format t "~{~a~%~}" *tokens*)
+   (format t "~{~a~%~}" *tokens*)
   ;; (print-tokens)
   )
 
 (defun reset-gobbler (char) (push-char char) (set-gobbler char))
 (defun gobble-alpha-chars (char)
-  (cond ( (not (or (char= char #\_) (alpha-char-p char)))
+  (cond ( (not (or (char= char #\_) (alpha-char-p char) (digit-char-p char)))
 	  (set-gobbler char)  (pop-token "alpha_")))
   (push-char char))
 (defun gobble-digits (char)
@@ -99,7 +102,7 @@
       (setf prev-char char))))
 (defun set-gobbler (char)
   (setf *gobbler*
-	( cond ((alpha-char-p char) #'gobble-alpha-chars)
+	( cond ((or (char= char #\_) (alpha-char-p char)) #'gobble-alpha-chars)
 	       ((digit-char-p char) #'gobble-digits)
 	       ((white-space-p char) #'gobble-white-space)
 	       ((char= char #\") #'gobble-string)
@@ -114,6 +117,12 @@
 (defun is-keyword (alpha)
   (find alpha *keywords* :test #'equal))
 
+(defun is-operand (alpha)
+  (find alpha *operands* :test #'equal))
+
+(defun is-qualifier (alpha)
+  (find alpha *qualifiers* :test #'equal))
+
 (defun pop-token (type)
   ;; (format t "<~a> ~a~%" type (string (coerce ( reverse *token*) 'string)) )
   (let ((token (string (coerce ( reverse *token*) 'string))))
@@ -121,8 +130,10 @@
     (setf type 
 	  (if (equal type "alpha_")
 	      (if (is-keyword token) "keyword"
-		"identifier")
-	    type))
+		(if (is-qualifier token) "qualifier" "identifier"))
+	    (if (equal type "sign")
+		(if (is-operand token) "operand" "sign")
+	      type)))
     (if (equal type "space")
 	(setf *last-space* (string (coerce (reverse *token*) 'string)))
       (let ((new-token (list  (list 
@@ -158,7 +169,7 @@
     ;; (format t "Forgetting mark on token ~a~%" discarded-mark)
     ))
 
-;; (load-tokens "c:/home/EOCS/projects/Pong/Main.jack")
+;(load-tokens "c:/home/mysrc/lisp/eocs/11/Pong/test.jack")
 
 
 (defun print-tokens ()

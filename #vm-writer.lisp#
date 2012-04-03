@@ -94,6 +94,7 @@
     (in-package :vm-writer)
     (setf sexpr (read-from-string sexpr-string))
     (pprint sexpr)
+    (print classname)
     ;; (eval sexpr)
     ))
 

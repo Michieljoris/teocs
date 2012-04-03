@@ -36,7 +36,7 @@
 (defpackage :com.michieljoris.eocs.ast-builder
   (:use :cl :tree-walker)
   (:nicknames :ast-builder)
-  (:export :build-ast))
+  (:export :get-sexpr-string))
 (defpackage :com.michieljoris.eocs.jack-compiler
   (:use :cl)
   (:nicknames :jack-compiler)
@@ -48,6 +48,10 @@
 (defpackage :com.michieljoris.eocs.vm-compiler
   (:use :cl)
   (:nicknames :vm-compiler)
+  (:export :compile-vm))
+(defpackage :com.michieljoris.eocs.vm-writer
+  (:use :cl :ast-builder)
+  (:nicknames :vm-writer)
   (:export :compile-vm))
 (defpackage :com.michieljoris.eocs
  (:use :cl pathnames :jack-compiler :vm-compiler :hack-assembler)
