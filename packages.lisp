@@ -53,6 +53,10 @@
   (:use :cl :ast-builder)
   (:nicknames :vm-writer)
   (:export :compile-vm))
+(defpackage :com.michieljoris.eocs.compilation-engine
+  (:use :cl :ast-builder)
+  (:nicknames :compilation-engine)
+  (:export :compile-jack))
 (defpackage :com.michieljoris.eocs
  (:use :cl pathnames :jack-compiler :vm-compiler :hack-assembler)
   (:nicknames :eocs)

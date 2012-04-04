@@ -87,7 +87,7 @@
    ( operand (declare (ignore arg)) (concatenate  'string "\"" elt "\" "))
    ( keyword  (declare (ignore elt)) (declare (ignore arg)) "") 
    ( qualifier (declare (ignore arg)) (concatenate 'string  "'" elt " ")) 
-   ( integerConstant (declare (ignore arg)) (concatenate 'string elt " "))
+   ( integerConstant (declare (ignore arg)) (concatenate 'string "\"" elt "\" "))
    ( identifier (declare (ignore arg)) (concatenate 'string "'$" elt " "))
    ( stringConstant (declare (ignore arg)) (concatenate 'string elt " "))))
 

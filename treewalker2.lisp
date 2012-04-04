@@ -92,7 +92,7 @@
   (let ((sn (symbol-name q)))
     (cond
       ((equal sn "?")
-       (list '$open '! '@list (list '/  elt '!  nil '!) '! '$close '! '@list)  )
+       (list (list '/  elt '! (list '$open '! '@list  '$close '! '@list) '!) '! ))
       ((equal sn "*")
        (list '$open '! '@list ( list '/ (list elt '! elt '&) '! nil '!) '!
 	     '$close '! '@list)  )
