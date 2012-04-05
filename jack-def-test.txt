@@ -3,18 +3,19 @@ class: 'class' classNameDec '{' classVarDec*  subroutineDec* '}' ;
 classNameDec: identifier
 classVarDec: ('static' | 'field' ) type varName (',' varName)*  ';' ;
 type:  'int' | 'char' | 'boolean' | className ;
-subroutineDec: ('constructor' | 'function' | 'method')  ('void' | type) subroutineNameDec '(' parameterList? ')' subroutineBody;
-subroutineNameDec identifier;
+subroutineDec:  subroutineTypeDec ('void' | type) subroutineName '(' parameterList? ')' subroutineBody;
+subroutineTypeDec: 'constructor' | 'function' | 'method'
 parameterList:  type varName  (',' type varName)*;
-subroutineBody: '{' varDec* statement* '}' ;
+subroutineBody: '{' varDec* statements '}' ;
 varDec:  'var' type varName (',' varName)* ';' ;
 className: identifier ;
 subroutineName: identifier ;
 varName: identifier ;
+statements: statement*;
 statement: letStatement | ifStatement | whileStatement | doStatement | returnStatement  ;
 letStatement: 'let' varName ('[' expression ']')? '=' expression ';' ;
-ifStatement: 'if' '(' expression ')' '{' statement* '}'  ( 'else' '{' statement* '}' )?;
-whileStatement: 'while' '(' expression ')' '{' statement* '}' ;
+ifStatement: 'if' '(' expression ')' '{' statements '}'  ( 'else' '{' statements '}' )?;
+whileStatement: 'while' '(' expression ')' '{' statements '}' ;
 doStatement:  'do'  (localCall | classCall) ';' ;
 returnStatement  'return'  expression? ';' ;
 expression: term (op term)* ;
