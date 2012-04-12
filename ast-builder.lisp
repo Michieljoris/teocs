@@ -88,7 +88,7 @@
    ( keyword  (declare (ignore elt)) (declare (ignore arg)) "") 
    ( qualifier (declare (ignore arg)) (concatenate 'string  "'" elt " ")) 
    ( integerConstant (declare (ignore arg)) (concatenate 'string "\"" elt "\" "))
-   ( identifier (declare (ignore arg)) (concatenate 'string "'$" elt " "))
+   ( identifier (declare (ignore arg)) (concatenate 'string "'" elt " "))
    ( stringConstant (declare (ignore arg)) (concatenate 'string elt " "))))
 
 ;;hacking to get around CL's annoying case handling of symbols. 
@@ -97,7 +97,7 @@
 	 (lowercasep (c) (and (char>= c #\a) (char<= c #\z)) ) )
     (let ((has-lowercase nil)
 	  (has-uppercase nil))
-      (if (dotimes (i (length s) nil)
+      (if (dotimes (i (length s) nil)ggggg
 	    (let ((c (elt s i)))
 	      (cond
 	       ((uppercasep c)

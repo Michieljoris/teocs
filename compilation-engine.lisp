@@ -6,17 +6,22 @@
 (defparameter classname nil)
 (defparameter subroutine-name nil)
 (defparameter subroutine-type nil)
-(defparameter index 0)
+(defparameter index-var 0)
+(defparameter index-field 0)
 (defparameter index-static 0)
-(defparameter $ (string (coerce '(#\Newline) 'string)))
+;; (defparameter function-has-no-return-statement t)
+(defparameter $ 'nl )
+  ;; (string (coerce '(#\Newline) 'string)))
 (defparameter operands '(( "+" . "add") ( "-" . "sub")
-			 ( "*" . "Math.multiply 2") ( "/" . "Math.divide 2")
+			 ( "*" . "call Math.multiply 2") ( "/" . "call Math.divide 2")
 			 ( "=" . "eq") ( "<" . "lt") ( ">" . "gt")
 			 ( "&" . "and")  ( "|" . "or") ))
 (defparameter label-counter 0)
 
 (defun init ()
   (setf index-static 0)
+  (setf index-field 0)
+  (setf class-symbol-table nil)
   (setf label-counter 0)
   )
 
@@ -34,10 +39,10 @@
   (push varname varnamelist)
   (do () ((null varnamelist))
     (if (eql kind 'field)
-      (push (list 'this type index) class-symbol-table)
+      (push (list 'this type index-field) class-symbol-table)
       (push (list 'static type index-static) class-symbol-table))
     (push (pop varnamelist) class-symbol-table)
-    (if (eql kind 'field) (incf index) (incf index-static))))
+    (if (eql kind 'field) (incf index-field) (incf index-static))))
 (defun @classNameDec (identifier) (setf classname identifier))
 (defun @className (identifier) identifier )
 (defun @type (identifier-type) identifier-type) 
@@ -45,21 +50,27 @@
 
 (defun @subroutineDec (subroutineType returnType subroutineName
 		       parameterList subroutineBody)
-  (declare (ignore returnType))
   (declare (ignore parameterList))
+  (declare (ignore returnType))
   (resetcmd)
-  (cmd "function" (format nil "~a.~a" classname  subroutineName) index $)
+  (cmd "function" (format nil "~a.~a" classname  subroutineName) index-var $)
   (case subroutineType
     (method
      (cmd "push argument 0" $
 	  "pop pointer 0" $) )
     (constructor
-    ;????????????????? 
-     )
+     (cmd "push constant" index-field $)
+     (cmd "call Memory.alloc 1" $)
+     (cmd "pop pointer 0" $))
     (otherwise ))
-  (cmd subroutineBody))
+  (cmd subroutineBody)
+  ;; (if (and (equal returnType 'void) function-has-no-return-statement)
+  ;;     (cmd "push constant 0"))
+  ;; 
+  ;; (setf function-has-no-return-statement t)
+  )
 (defun @subroutineTypeDec (type)
-  (setf index 0)
+  (setf index-var 0)
   (setf subroutine-symbol-table nil)
   type)
 (defun @subroutineName (identifier) identifier)
@@ -79,9 +90,9 @@
 (defun @varDec (varType varName varList)
   (push varName varList)
   (do () ((null varList))
-    (push (list 'local varType index) subroutine-symbol-table)
+    (push (list 'local varType index-var) subroutine-symbol-table)
     (push (pop varList) subroutine-symbol-table)
-    (incf index)))
+    (incf index-var)))
   
 (defun @statements (statements)
   (resetcmd)
@@ -132,6 +143,7 @@
 	 "goto" before-expression $
 	 "label" after-while $)))
 (defun @returnStatement (expression)
+  ;; (setf function-has-no-return-statement nil)
   (resetcmd)
   (if expression
       (cmd expression)
@@ -139,9 +151,7 @@
   (cmd "return" $))
 
 (defun @expressionList (expression expressionList)
-  (resetcmd)
-  (cmd expression)
-  (dolist (e expressionList (cmd)) (cmd e)))
+  (push expression expressionList))
 (defun @expression (term optermList)
   (resetcmd)
   (cmd term)
@@ -172,8 +182,9 @@
   (case keywordConstant
     (true (cmd "push constant 0" $
 	       "not" $))
-    (false (cmd "push constant 0" ))
-    (otherwise (cmd "ERRROORRRR keywordconstant is null or this!!" $))))
+    (false (cmd "push constant 0" $ ))
+    (this (cmd "push pointer 0" $))
+    (otherwise (cmd "ERRROORRRR keywordconstant is null!!" $))))
 (defun @variable (varName index-expression)
   (resetcmd)
   (cond
@@ -188,12 +199,23 @@
 
 (defun @localCall (subroutineName expressionList)
   (resetcmd)
-  ;?????????????
+  (cmd "push pointer 0" $)
+  (dolist (e expressionList (cmd)) (cmd e))
+  (cmd "call" (format nil "~a.~a" classname subroutineName)
+       (1+ (length expressionList)) $)
   )
 (defun @classCall (varName subroutineName expressionList)
   (resetcmd)
-  ;???????????????????????
-  )
+  (cond
+    ((lookup varName)
+     (cmd "push" (kind-of varName) (index-of varName) $)
+     (dolist (e expressionList (cmd)) (cmd e))
+     (cmd "call" (format nil "~a.~a" (typeof varName) subroutineName)
+	  (1+ (length expressionList)) $))
+    (t
+     (dolist (e expressionList (cmd)) (cmd e))
+     (cmd "call" (format nil "~a.~a" varName subroutineName)
+	  (length expressionList) $))))
 
 (defun @parensedExpression (expression) expression)
 (defparameter gather nil)
@@ -209,7 +231,7 @@
 ;---------------------------------------------------
 ;support functions)
 (defun kind-of (identifier)
-  (symbol-name (car (lookup identifier))))
+  (string-downcase  (symbol-name (car (lookup identifier)))))
 (defun typeof (identifier)
   (symbol-name (cadr (lookup identifier))))
 (defun index-of (identifier)
@@ -218,7 +240,7 @@
   (or (getf subroutine-symbol-table identifier)
       (getf class-symbol-table identifier)))
 (defun unique-label ()
-  (format nil "label-~a" (incf label-counter)))
+  (format nil "LABEL~a" (incf label-counter)))
 (defun resetcmd () (setf gather nil))
 (defun cmd (&rest l)
   (setf gather (concatenate 'list gather (splice l))))
@@ -227,8 +249,13 @@
 	(t (concatenate 'list
 			(if (listp (car l)) (car l) (list (car l)))
 			(splice (cdr l))))))
+;; (defun strip$ (s)
+;;   (string-left-trim "$" s))
 (defun print-vm ()
-  (format t "VM:~%~{ ~a~}" gather))
+  (dolist (e gather)
+    (if (equal e 'nl) (format t "~%")
+	(format t "~a " e)))
+  )
 ;------------------------------------------
 ;
 (defun eval-jack (jack-filename language-definition-filename )
@@ -245,8 +272,5 @@
 	    subroutine-symbol-table)
     (print-vm)))
 
-;; (eval-jack "c:/home/mysrc/lisp/eocs/11/Pong/test.jack"
-;; 	    "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt")
-
-
-
+(eval-jack "c:/home/mysrc/lisp/eocs/11v/Pong/Ball.jack"
+	    "c:/home/mysrc/lisp/eocs/jack-compiler/jack-def-test.txt")

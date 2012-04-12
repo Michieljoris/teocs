@@ -122,7 +122,7 @@
 
 (defun get-construct-definition (element)
   (incf *counter*)
-  (if (> *counter* 8000) (error "to many def requests. Must be a loop!!!"))
+  (if (> *counter* 20000) (error "to many def requests. Must be a loop!!!"))
   (getf production-list element))
 
 (defun get-construct-definition-readable (element)
